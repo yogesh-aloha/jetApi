@@ -35,55 +35,77 @@ var commons = {
 		}).end();
 	},
 
-	allCompanies : function(req, cb){
+	allCompanies : function(req, cb) {
 		var nxt = true;
 		var total_row = 0;
 		if(nxt) {
 			async.whilst(
 				function () { return nxt; },
 				function (callback) {
-					console.log(total_row);
-					options.path = '/Common/Companies/?Skip='+total_row+'&Take=5000';
-					commons.sendReq(options, function(err, result) {
-						console.log(result.length);        
-						if(err) { return cb('error while getting data for Companies'+err)}
-						if(result.length <= 0) {
-							nxt = false;
-						} else if(_.isArray(result)) {
-							// store data in companies table
-							var values = [];
-							async.waterfall([
-								function(cb2){
-										console.log(result);
+					async.waterfall([
+						function(cb1) {
+							if( total_row === 0 ) {
+								qryCount = "SELECT count(*) as total FROM companies";
+								dbPool.query(qryCount,function(err, rows){
+									if(err) {return cb2('error in insert companies'+err)}
+									else {
+										if(rows !== undefined && rows.length > 0) {
+											total_row = rows[0].total;
+											cb1(null, total_row);
+										} else {
+											cb1(null, total_row);
+										}
+									}
+								});
+							} else {
+								cb1(null,total_row);
+							}
+						}, function(total_row, cb1) {
+							console.log(total_row);
+							options.path = '/Common/Companies/?Skip='+total_row+'&Take=';
+							commons.sendReq(options, function(err, result) {
+								console.log(result.length);        
+								if(err) { return cb('error while getting data for Companies'+err)}
+								
+								if(result.length <= 0) {
+									nxt = false;
+									cb1(null, total_row);
+								} else if(!_.isArray(result)) {
+									cb1(result.message, total_row);
+								} else {
+									var values = [];
 									_.each(result, function(data){
 										replaceDash = (data.Name).replace(/\\/g, "\\\\");
 										name = (replaceDash).replace(/'/g, "\\'");
 										values.push("("+data.Id+",'"+name+"',1)");
 									});
-									cb2(null,values);
-								},
-								function(values, cb2){
-									// console.log(values);
-									var qry = "REPLACE INTO companies (id,name,version_number) VALUES "+values.join(',');
-									// console.log(qry);
-									dbPool.query(qry,function(err, rows){
-										if(err) {return cb2('error in insert companies'+err)}
-										else {
-											total_row = total_row + rows.affectedRows;
-											cb2(null, total_row);
-										}
-									});
+									cb1(null, values);
 								}
-							], function (err, result) {
-								callback(err, total_row);
 							});
+						}, function(values, cb1) {
+							if(values.length > 0) {
+								var qry = "REPLACE INTO companies (id,name,version_number) VALUES "+values.join(',');
+								console.log(qry);
+								dbPool.query(qry,function(err, rows){
+									if(err) {return cb2('error in insert companies'+err)}
+									else {
+										total_row = total_row + rows.affectedRows;
+										cb1(null, total_row);
+									}
+								});
+							} else {
+								cb1('null', total_row);
+							}
+						}
+					], function (err, rows) {
+						if(err) {
+							return callback(err, rows);
 						} else {
-							nxt = false;
-							callback(result.message);
+							callback(null, rows);
 						}
 					});
 				},
-				function (err) {
+				function (err, data) {
 					if(err) {
 						console.log(err);
 						return cb(err);
@@ -91,7 +113,7 @@ var commons = {
 						cb(null, total_row);
 					}
 				}
-			);
+			)
 		}
 	},
 
