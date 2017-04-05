@@ -1,0 +1,6 @@
+development:
+  host    : <<host name>>
+  database: <<db name>>
+  username: <<user name>>
+  password: << password >>
+  pool    : 250
