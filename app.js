@@ -13,6 +13,7 @@ var express      = require('express'),
 var	index = require('./routes/index'),
 	users = require('./routes/users'),
 	common = require('./routes/common');
+	movies = require('./routes/movies');
 
 var app = express();
 
@@ -43,6 +44,7 @@ app.use(function(req, res, next) {
 app.use('/', index);
 app.use('/users', users);
 app.use('/common', common);
+app.use('/movies', movies);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

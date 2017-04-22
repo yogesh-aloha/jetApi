@@ -1,124 +1,171 @@
-var db     = require('./dbModel.js'),
-	http   = require('http'),
-	https  = require('https'),
-	envVar = process.env.NODE_ENV,
-	yaml   = require("js-yaml"),
-	fs     = require("fs"),
-	e      = yaml.load(fs.readFileSync("config/iva.yml")),
-	dbPool = require('./dbModel'),
-	async = require('async'),
-	_ = require('underscore');
-
-var options = {
-	hostname:'ee.iva-api.com',
-	method  :'GET',
-	headers : { 'Ocp-Apim-Subscription-Key': e[envVar].subscription_key_common,
-				'Content-Type': 'application/json'}
-};
+var	dbPool  = require('./dbModel'),
+	async   = require('async'),
+	request = require('../modules/sendRequest'),
+	_       = require('underscore'),
+	options = {},
+	f =  require('../lib/functions.js');
 var commons = {
-	sendReq: function(options, cb) {
-		console.log(options);
-		https.get(options, function (res) {
-			var data = '';
-			var ret = [];
-
-			res.on('data', function (chunk) {
-				data += chunk;
-			});
-
-			res.on('end', function () {
-				console.log('sending result');
-				cb(null, JSON.parse(data));
-			});
-		}).on('error', function (e) {
-			cb('Received error making request: ' + e.message);
-		}).end();
+	allCountries : function(req, cb) {
+		req.param.table   = 'countries';
+		req.param.path    = '/Common/Countries';
+		req.param.fields  = ['id','iso_code','name','version_number'];
+		req.param.columns = ['Id','IsoCode','Name',1];
+		commons.storeData(req, function(err, data) {
+			cb(err, data);
+		});
 	},
 
-	allCompanies : function(req, cb) {
-		var nxt = true;
-		var total_row = 0;
-		if(nxt) {
-			async.whilst(
-				function () { return nxt; },
-				function (callback) {
-					async.waterfall([
-						function(cb1) {
-							if( total_row === 0 ) {
-								qryCount = "SELECT count(*) as total FROM companies";
-								dbPool.query(qryCount,function(err, rows){
-									if(err) {return cb2('error in insert companies'+err)}
-									else {
-										if(rows !== undefined && rows.length > 0) {
-											total_row = rows[0].total;
-											cb1(null, total_row);
-										} else {
-											cb1(null, total_row);
-										}
-									}
-								});
-							} else {
-								cb1(null,total_row);
-							}
-						}, function(total_row, cb1) {
-							console.log(total_row);
-							options.path = '/Common/Companies/?Skip='+total_row+'&Take=';
-							commons.sendReq(options, function(err, result) {
-								console.log(result.length);        
-								if(err) { return cb('error while getting data for Companies'+err)}
-								
-								if(result.length <= 0) {
-									nxt = false;
-									cb1(null, total_row);
-								} else if(!_.isArray(result)) {
-									cb1(result.message, total_row);
-								} else {
-									var values = [];
-									_.each(result, function(data){
-										replaceDash = (data.Name).replace(/\\/g, "\\\\");
-										name = (replaceDash).replace(/'/g, "\\'");
-										values.push("("+data.Id+",'"+name+"',1)");
-									});
-									cb1(null, values);
+	getStoreCountries : function(countries, cb) {
+		if(countries.length > 0) {
+			var country_ids = [];
+			async.each(countries, function(country, eachCB) {
+				var getCountry = "SELECT id,name FROM countries WHERE name = '" + country + "'";
+				dbPool.query(getCountry,function(err, data){
+					if(err) {return cb1('error in insert countries '+err)}
+					else {
+						if(data.length > 0) {
+							country_ids.push({"id":data[0].id, "name":country});
+							eachCB(null);
+						} else {
+							var storeCountry = "INSERT IGNORE INTO countries (name) VALUES ('"+country+"')";
+							dbPool.query(storeCountry,function(err, data){
+								if(err) {return cb1('error in insert countries '+err)}
+								else {
+									country_ids.push({"id":data['insertId'], "name":country});
+									eachCB(null);
 								}
 							});
-						}, function(values, cb1) {
-							if(values.length > 0) {
-								var qry = "REPLACE INTO companies (id,name,version_number) VALUES "+values.join(',');
-								console.log(qry);
-								dbPool.query(qry,function(err, rows){
-									if(err) {return cb2('error in insert companies'+err)}
-									else {
-										total_row = total_row + rows.affectedRows;
-										cb1(null, total_row);
-									}
-								});
-							} else {
-								cb1('null', total_row);
-							}
 						}
-					], function (err, rows) {
-						if(err) {
-							return callback(err, rows);
-						} else {
-							callback(null, rows);
-						}
-					});
-				},
-				function (err, data) {
-					if(err) {
-						console.log(err);
-						return cb(err);
-					} else {
-						cb(null, total_row);
 					}
+				});
+			}, function(err){
+				if(err) {cb(err);}
+				else { 
+					cb(null, country_ids);
 				}
-			)
+			});
+		} else {
+			cb(null, []);
 		}
 	},
 
-	allCountries : function(req, cb){
-		cb(null, 'data from model');
+	getStoreLanguages : function(languages, cb) {
+		if(languages.length > 0) {
+			var lang_ids = [];
+			async.each(languages, function(language, eachCB) {
+				var getlanguage = "SELECT id,name FROM languages WHERE name = '" + language + "'";
+				dbPool.query(getlanguage,function(err, data){
+					if(err) {return cb1('error in insert languages '+err)}
+					else {
+						if(data.length > 0) {
+							lang_ids.push({"id":data[0].id, "name":language});
+							eachCB(null);
+						} else {
+							var storeLanguage = "INSERT IGNORE INTO languages (name) VALUES ('"+languages+"')";
+							dbPool.query(storeLanguage,function(err, data){
+								if(err) {return cb1('error in insert languages '+err)}
+								else {
+									lang_ids.push({"id":data['insertId'], "name":languages});
+									eachCB(null);
+								}
+							});
+						}
+					}
+				});
+			}, function(err){
+				if(err) {cb(err);}
+				else { 
+					cb(null, lang_ids);
+				}
+			});
+		} else {
+			cb(null, []);
+		}
+	},
+
+	getStoreReleaseTypes : function(releaseTypes, cb) {
+		if(releaseTypes.length > 0) {
+			var release_type_ids = [];
+			async.each(releaseTypes, function(type, eachCB) {
+				var getCountry = "SELECT id,name FROM release_types WHERE name = '" + type + "'";
+				dbPool.query(getCountry,function(err, data){
+					if(err) {return cb1('error in insert release_types '+err)}
+					else {
+						if(data.length > 0) {
+							release_type_ids.push({"id":data[0].id, "type":type});
+							eachCB(null, data[0].id);
+						} else {
+							var storeCountry = "INSERT IGNORE INTO release_types (name) VALUES ('"+type+"')";
+							dbPool.query(storeCountry,function(err, data){
+								if(err) {return cb1('error in insert release_types '+err)}
+								else {
+									release_type_ids.push({"id":data['insertId'], "type":type});
+									eachCB(null);
+								}
+							});
+						}
+					}
+				});
+			}, function(err){
+				if(err) {cb(err);}
+				else { 
+					cb(null, release_type_ids);
+				}
+			});
+		} else {
+			cb(null, []);
+		}
+	},
+
+	storeData : function(req, cb){
+		var table   = req.table;
+		var fields  = req.fields;
+		var columns = req.columns;
+		var result  = req.dataset;
+		var values = [];
+		async.waterfall([
+			function(cb1) {
+				async.each(result, function(data, eachCb){
+					arrVal = [];
+					_.each(columns, function(column) {
+						data[column] = f.empty(data[column]);
+						if(_.isString(data[column])){
+							replaceDash = (data[column]).replace(/\\/g, "\\\\");
+							col = (replaceDash).replace(/'/g, "\\'");
+							arrVal.push("'"+col+"'");
+						} else if(data[column] === null) {
+							arrVal.push("''");
+						} else {
+							arrVal.push(data[column]);
+						}
+					});
+					values.push("("+ arrVal.join(',') +")");
+					eachCb(null, values);
+				},
+				function(err) {
+					if(err) {cb1(err);}
+					else {cb1(err,values);}
+				});
+			}, function(values, cb1) {
+				if(values.length > 0) {
+					var qry = "INSERT IGNORE INTO "+table+" ("+"`"+fields.join('`,`')+"`"+" ) VALUES "+values.join(',');
+					dbPool.query(qry,function(err, rows){
+						if(err) {return cb1('error in insert ' +table+' '+err)}
+						else {
+							cb1(null, rows.affectedRows);
+						}
+					});
+				} else {
+					cb1(null);
+				}
+			}
+		], function (err, rows) {
+			if(err) {
+				return cb(err, rows);
+			} else {
+				cb(null, rows);
+			}
+		});
 	},
 }
 

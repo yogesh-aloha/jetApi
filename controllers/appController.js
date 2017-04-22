@@ -11,8 +11,6 @@ var controller = {
             response.err = '';
             response.json = data;
         }
-        //console.log('Res: ' + JSON.stringify(response));
-        //console.log('record count: ' + response.json.length);
         res(response);
     }
 };

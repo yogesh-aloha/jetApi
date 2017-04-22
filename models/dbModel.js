@@ -1,8 +1,8 @@
 var mysql            = require('mysql'),
-	yaml    	     = require("js-yaml"),
-	fs      		 = require("fs"),
-	envVar  		 = process.env.NODE_ENV,
-	e       		 = yaml.load(fs.readFileSync("config/database.yml"));
+	yaml             = require("js-yaml"),
+	fs               = require("fs"),
+	envVar           = process.env.NODE_ENV,
+	e                = yaml.load(fs.readFileSync("config/database.yml")),
 	dbConnectionPool = mysql.createPool({
 	    host     : e[envVar].host,
 	    user     : e[envVar].username,
@@ -15,11 +15,6 @@ var dbPool = {
 	query: function(qry,res){
 		console.log('Query: ' + qry);
 		dbConnectionPool.getConnection(function(err, connection) {
-			// if (err) {
-			// 	console.log('Call Engine connection error: '+err);
-			// 	res(err);
-			// 	return;
-			// }
 			connection.query(qry, function(err, rows, fields) {
 				if (err) {
 					console.log('Query error: ' + err);
@@ -80,7 +75,7 @@ var dbPool = {
 };
 
 
-module.exports = dbConnectionPool
+module.exports = dbPool
 
 function queryBuilder(type,data){
 	var qry = '';
@@ -88,7 +83,7 @@ function queryBuilder(type,data){
 		case 'insert':
 			var fields = [];
 			var values = '';
-			var count = 0;
+			var count  = 0;
 			for (var key in data.values) {
 				count ++;
 				fields.push(key);
@@ -110,7 +105,7 @@ function queryBuilder(type,data){
 					values += ",";
 				}
 			}
-			qry = "INSERT INTO " + data.table + " (" + fields.join(',') + ") VALUES (" + values + ")";
+			qry = "INSERT IGNORE INTO " + data.table + " (" + fields.join(',') + ") VALUES (" + values + ")";
 		break;
 
 		case 'update':
