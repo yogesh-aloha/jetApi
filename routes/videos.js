@@ -1,5 +1,5 @@
 var express          = require('express'), 
-	videoController = require('../controllers/videoController'),
+	videoController = require('../controllers/videosController'),
 	router = express.Router();
 
 // Add headers

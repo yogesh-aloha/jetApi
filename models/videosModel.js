@@ -38,7 +38,25 @@ var moviesTableMapping = {
 
 var commons = {
 	getAllVideos : function(req, cb) {
+		if(!req.params.take) req.params.take = 100;
+		if(!req.params.skip) req.params.skip = 0;
+
+		var qry = "SELECT mv.id, mv.title, mov.duration, mi.file_path, ";
+		qry += "mi.height, mi.width, mov.title, mov.original_release_date ";
+		qry += "mve.encode_type, mov.title from movie_videos mv " ;
+		qry += "LEFT JOIN movie_images mi ON (mv.movie_id = mi.movie_id) ";
+		qry += "LEFT JOIN movie mov ON (mv.movie_id = mov.id) ";
+		qry += "LEFT JOIN movie_video_encodes mve ON (mv.id = mve.movie_video_id) "
+
+		var where = "";
+
+		var limit = "LIMIT " + req.params.take;
+		var take = " OFFSET " + req.params.skip;
+
+		qry = qry + where + limit + take;
 		
+		dbPool.query(qry,function(err, data){
+		});	
 	}
 }
 

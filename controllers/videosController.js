@@ -1,4 +1,4 @@
-var videoModel = require('../models/videoModel'),
+var videoModel = require('../models/videosModel'),
 	controller  = require('./appController');
 
 var movie = {
