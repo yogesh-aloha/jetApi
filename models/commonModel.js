@@ -82,7 +82,39 @@ var commons = {
 			cb(null, []);
 		}
 	},
-
+	getStoreImageType : function(imageTypes, cb) {
+		if(imageTypes.length > 0) {
+			var image_type_ids = [];
+			async.each(imageTypes, function(type, eachCB) {
+				var getCountry = "SELECT id,name FROM image_types WHERE name = '" + type + "'";
+				dbPool.query(getCountry,function(err, data){
+					if(err) {return cb1('error in insert image types '+err)}
+					else {
+						if(data.length > 0) {
+							image_type_ids.push({"id":data[0].id, "type":type});
+							eachCB(null, data[0].id);
+						} else {
+							var storeCountry = "INSERT IGNORE INTO image_types (name) VALUES ('"+type+"')";
+							dbPool.query(storeCountry,function(err, data){
+								if(err) {return cb1('error in insert image types '+err)}
+								else {
+									image_type_ids.push({"id":data['insertId'], "type":type});
+									eachCB(null);
+								}
+							});
+						}
+					}
+				});
+			}, function(err){
+				if(err) {cb(err);}
+				else { 
+					cb(null, image_type_ids);
+				}
+			});
+		} else {
+			cb(null, []);
+		}
+	},
 	getStoreReleaseTypes : function(releaseTypes, cb) {
 		if(releaseTypes.length > 0) {
 			var release_type_ids = [];

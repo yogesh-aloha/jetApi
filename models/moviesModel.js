@@ -36,6 +36,16 @@ var moviesTableMapping = {
 	'RedirectTo'          : 'redirect_to'
 }
 
+var imagesTableMapping = {
+	"ImageType" : "image_type",
+	"FilePath"  : "file_path",
+	"Width"     : "width",
+	"Height"    : "height",
+	"Violence"  : "violence_level",
+	"Sexuality" : "sexuality_level",
+	"Official"  : "official"
+}
+
 var commons = {
 	insertGenres : function(req, cb) {
 		req.param.table   = 'genres';
@@ -78,7 +88,7 @@ var commons = {
 						function(total_row,cb1) {
 							var options        = {};
 							options.theterical = true;
-							options.path       = '/TheatricalMovies/?Skip=10&Take=1&Includes=Tags';
+							options.path       = '/TheatricalMovies/?Skip=1&Take=1&Includes=Images';
 							request.sendReq(options, function(err, result) {
 								console.log(result);        
 								if(err) { return cb('error while getting data for Companies '+err)}
@@ -94,6 +104,7 @@ var commons = {
 								}
 							});
 						}, function(result, cb1) {
+							// for each movie
 							async.each(result, function(data, cb2){
 								var movie_id = data['Id'];
 								var theterical_data             = {},
@@ -107,8 +118,8 @@ var commons = {
 									movie_companies             = {},
 									tags                        = {},
 									movie_tags                  = {},
-									movie_image_tags            = {},
-									images                      = {},
+									image_tags                  = {},
+									movie_images                = {},
 									videos                      = {},
 									countries                   = {},
 									movie_video_screen_captures = {},
@@ -144,7 +155,7 @@ var commons = {
 												tags = v;
 												break;
 											case 'Images':
-												images.v;
+												movie_images = v;
 												break;
 											case 'Videos':
 												videos.push({
@@ -218,7 +229,7 @@ var commons = {
 								async.parallel([
 									function (cb0) {
 										if(!_.isEmpty(genres)) {
-											async.series([ // Inserting generes for movies in series
+											async.parallel([ // Inserting generes for movies in series
 												function(cbSeries){
 													req.table   = 'genres';
 													req.fields  = ['id','name'];
@@ -248,7 +259,7 @@ var commons = {
 												} else {
 													cb0(null);
 												}
-											});//async series
+											});
 										} else {
 											return cb0(null);
 										}
@@ -514,8 +525,146 @@ var commons = {
 										}
 									},
 									function (cb0) {
-										if(!_.isEmpty(images)) {
+										if(!_.isEmpty(movie_images)) {
+											async.eachSeries(movie_images, function(images, eachImageCB) {
+												var image_type = []
+												var languages = [];
+												var image_tags = [];
+												if(f.empty(images['ImageType']) !== null) {
+													image_type.push(images['ImageType']);
+												}
+												if(f.empty(images['Language']) !== null) {
+													languages.push(images['Language']);
+												}
 											
+												console.log(image_type,languages);
+												async.waterfall([ // Inserting generes for movies in series
+													function(ImageCB) {
+														async.parallel({
+															image_type_ids : function(cbLang) {
+																if(image_type.length > 0){
+																	commonModel.getStoreImageType(image_type, function(err, data){
+																		if(err) {cb0(err);}
+																		else { 
+																			cbLang(null, data);
+																		}
+																	});
+																} else {
+																	cbLang(null, []);
+																}
+															},
+															language_ids : function(cbLang) {
+																if(languages.length > 0){
+																	commonModel.getStoreLanguages(languages, function(err, data){
+																		if(err) {cb0(err);}
+																		else { 
+																			cbLang(null, data);
+																		}
+																	});
+																} else {
+																	cbLang(null, []);
+																}
+															},
+														},function(err, data){
+															if(err) {return cb0(err);}
+															else {ImageCB(null,data)}
+														});
+													},
+													function(data,ImageCB) {
+														var image_type_ids = data.image_type_ids;
+														var language_ids   = data.language_ids;
+														var imageVals      = [];
+														// async.eachof(images, function(img, eachCB) {
+														async.forEachOf(images, function (img, key, eachCB){
+															if(key === 'Language') {
+																lang_id       = _.find(_.map(language_ids, function(lang){ if(lang.name == img) {return lang.id}}), function(num){ return num !==undefined; });
+																imageVals['language_id'] = lang_id;
+															} else if(key === 'ImageType') {
+																image_type_id = _.find(_.map(image_type_ids, function(type){ if(type.type === img) {return type.id} }), function(num){ return num !==undefined; });
+																imageVals['image_type_id'] = image_type_id;
+															} else if(key === 'Tags') {
+																console.log()
+																image_tags = img;
+															} 
+															else {
+																imageVals[imagesTableMapping[key]] = img;
+															} 
+															eachCB(null);
+														}, function(err){
+															imageVals['movie_id'] = movie_id;
+															var insertData = {
+																which: 'insert',
+																table: 'movie_images',
+																values: imageVals
+															};
+															dbPool.insert(insertData,  function(err, data) {
+																if (err) { cb0(err); }
+																 else {
+																 	ImageCB(null,data['insertId'])
+																 }
+															});
+														});
+													}, 
+													function(image_id,ImageCB) {
+														if(!_.isEmpty(image_tags)) {
+															var tagVals    = [];
+															var imgTagVals = [];
+															console.log(image_id);
+															async.each(image_tags, function(tag, eachCB) {
+																tagVals.push("("+tag['TagId']+",'"+ f.empty(tag['Name']) +"')");
+																imgTagVals.push("("+image_id+","+ tag['TagId'] +")");
+																eachCB(null);
+															}, function(err){
+																async.parallel([
+																	function(tagCb) {
+																		if(tagVals.length > 0) {
+																			var qry = "INSERT IGNORE INTO tags (id,name) VALUES "+tagVals.join(',');
+																			dbPool.query(qry,function(err, data){
+																				if(err) {return cb0('error in insert tags '+err)}
+																				else {
+																					tagCb(null);
+																				}
+																			});
+																		} else {
+																			tagCb(null);
+																		}
+																	},
+																	function(tagCb) {
+																		if(imgTagVals.length > 0) {
+																			var qry = "INSERT IGNORE INTO movie_image_tags (image_id,tag_id) VALUES "+imgTagVals.join(',');
+																			dbPool.query(qry,function(err, data){
+																				if(err) {return cb0('error in insert movie movie tags '+err)}
+																				else {
+																					tagCb(null);
+																				}
+																			});
+																		} else {
+																			tagCb(null);
+																		}
+																	},
+																],function(err, data){
+																	if(err) {return cb0(err);}
+																	else {ImageCB(null)}
+																});
+															});
+														} else {
+															ImageCB(null);
+														}
+													}
+												],
+												function(err){
+													if (err) {
+														console.log('ERROR in insert genres on async series '+err);
+														eachImageCB(err);
+													} else {
+														nxt = false;
+														eachImageCB(null);
+													}
+												});
+											}, function(err){
+												if(err) {return cb0(err); } 
+												else {cb0(null); }
+											});
 										} else {
 											cb0(null);
 										}

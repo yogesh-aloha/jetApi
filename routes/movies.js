@@ -29,7 +29,7 @@ router.get('/genre', function(req, res) {
 
 router.get('/theterical', function(req, res) {
     /**
-    * @api {get} /movies/theterical Request to store theterical data
+    * @api {get} /movies/theterical
     * @apiName /movies/theterical
     * @apiGroup movies
     *
