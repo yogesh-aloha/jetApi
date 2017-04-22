@@ -45,6 +45,7 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/common', common);
 app.use('/movies', movies);
+app.use('/videos', videos);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
