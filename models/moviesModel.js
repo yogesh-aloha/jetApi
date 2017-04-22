@@ -88,7 +88,8 @@ var commons = {
 						function(total_row,cb1) {
 							var options        = {};
 							options.theterical = true;
-							options.path       = '/TheatricalMovies/?Skip=1&Take=1&Includes=Images';
+							//options.path       = '/TheatricalMovies/?Skip=1&Take=1&Includes=Images';
+							options.path       = '/TheatricalMovies/?Skip=1&Take=1&Includes=Videos';
 							request.sendReq(options, function(err, result) {
 								console.log(result);        
 								if(err) { return cb('error while getting data for Companies '+err)}
@@ -120,11 +121,11 @@ var commons = {
 									movie_tags                  = {},
 									image_tags                  = {},
 									movie_images                = {},
-									videos                      = {},
+									videos                      = [],
 									countries                   = {},
-									movie_video_screen_captures = {},
-									movie_video_encodes         = {},
-									movie_video_countris        = {};
+									movie_video_screen_captures = [],
+									movie_video_encodes         = [],
+									movie_video_countris        = [];
 
 								_.each(data, function(v, k){
 									if (k === 'Created' || k === 'Modified' || k === 'OriginalReleaseDate' ) {
@@ -158,65 +159,66 @@ var commons = {
 												movie_images = v;
 												break;
 											case 'Videos':
-												videos.push({
-													'id'                  : v['Id'],
-													'movie_id'            : movie_id,
-													'title'               : f.empty(v['Title']),
-													'type'                : f.empty(v['Type']),
-													'start_date'          : f.fullDate(v['StartDate']),
-													'expiration_date'     : f.fullDate(v['ExpirationDate']),
-													'duration'            : f.empty(v['Duration']),
-													'language'            : f.empty(v['Language']),
-													'language_subtitled'  : f.empty(v['LanguageSubtitled']),
-													'company'             : f.empty(v['Company']),
-													'source_video_width'  : f.empty(v['SourceVideoWidth']),
-													'source_video_height' : f.empty(v['SourceVideoHeight']),
-													'allow_advertising'   : f.empty(v['AllowAdvertising']),
-													'encoded'             : f.fullDate(v['Encoded']),
-													'certification'       : f.empty(v['Certification']),
-													'theatrical'          : f.empty(v['Theatrical']),
-													'home_video'          : f.empty(v['HomeVideo']),
-													'clean'               : f.empty(v['Clean']),
-													'mature'              : f.empty(v['Mature']),
-												});
-												if(v['ScreenCaptures'] !== undefined && _.isArray(V['ScreenCaptures']) && V['ScreenCaptures'].length > 0) {
-													_.each(v['ScreenCaptures'], function (sc_v, sc_k){
-														movie_video_screen_captures.push({
-															"id"             : sc_v['Id'],
-															"movie_video_id" : v['Id'],
-															"height"         : f.empty(sc_v['Height']),
-															"width"          : f.empty(sc_v['Width']),
-															"aspect"         : f.empty(sc_v['Aspect']),
-															"file_path"      : f.empty(sc_v['FilePath'])
-														});
+												_.each(v, function (video, key){
+													videos.push({
+														'id'                  : video['Id'],
+														'movie_id'            : movie_id,
+														'title'               : f.empty(video['Title']),
+														'type'                : f.empty(video['Type']),
+														'start_date'          : (video['StartDate'] !== undefined ? f.fullDate(video['StartDate']) : ""),
+														'expiration_date'     : (video['ExpirationDate'] !== undefined ? f.fullDate(video['ExpirationDate']) : ""),
+														'duration'            : f.empty(video['Duration']),
+														'language'            : f.empty(video['Language']),
+														'language_subtitled'  : f.empty(video['LanguageSubtitled']),
+														'company'             : f.empty(video['Company']),
+														'source_video_width'  : f.empty(video['SourceVideoWidth']),
+														'source_video_height' : f.empty(video['SourceVideoHeight']),
+														'allow_advertising'   : f.empty(video['AllowAdvertising']),
+														'encoded'             : (video['Encoded'] !== undefined ? f.fullDate(video['Encoded']) : ""),
+														'certification'       : f.empty(video['Certification']),
+														'theatrical'          : f.empty(video['Theatrical']),
+														'home_video'          : f.empty(video['HomeVideo']),
+														'clean'               : f.empty(video['Clean']),
+														'mature'              : f.empty(video['Mature']),
 													});
-												}
 
-												if(v['Encodes'] !== undefined && _.isArray(V['Encodes']) && V['Encodes'].length > 0) {
-													_.each(v['Encodes'], function (en_v, en_k){
-														movie_video_encodes.push({
-															"id"             : en_v['Id'],
-															"movie_video_id" : v['Id'],
-															"bitrate"        : f.empty(en_v['BitRate']),
-															"encode_type"    : f.empty(en_v['EncodeType'])
+													if(video['ScreenCaptures'] !== undefined && _.isArray(video['ScreenCaptures']) && video['ScreenCaptures'].length > 0) {
+														_.each(video['ScreenCaptures'], function (sc_v, sc_k){
+															movie_video_screen_captures.push({
+																//"id"             : sc_v['Id'],
+																"video_id" 		 : video['Id'],
+																"height"         : f.empty(sc_v['Height']),
+																"width"          : f.empty(sc_v['Width']),
+																"aspect"         : f.empty(sc_v['Aspect']),
+																"file_path"      : f.empty(sc_v['FilePath'])
+															});
 														});
-													});
-												}
-
-												if(v['TargetCountries'] !== undefined && _.isArray(V['TargetCountries']) && V['TargetCountries'].length > 0) {
-													_.each(v['TargetCountries'], function (c_v, c_v){
-														countries.push({
-															'id'   : c_v['CountryId'],
-															'name' : f.empty(c_v['Name'])
+													}
+													if(video['Encodes'] !== undefined && _.isArray(video['Encodes']) && video['Encodes'].length > 0) {
+														_.each(video['Encodes'], function (en_v, en_k){
+															movie_video_encodes.push({
+																//"id"             : en_v['Id'],
+																"video_id" 		 : video['Id'],
+																"bitrate"        : f.empty(en_v['BitRate']),
+																"encode_type"    : f.empty(en_v['EncodeType'])
+															});
 														});
-														movie_video_countris.push({
-															"id"                : c_v['Id'],
-															"video_id"          : v['Id'],
-															"target_country_id" : f.empty(c_v['CountryId']),
-															"country_id"        : f.empty(c_v['CountryId'])
+													}
+													if(video['TargetCountries'] !== undefined && _.isArray(video['TargetCountries']) && video['TargetCountries'].length > 0) {
+														_.each(v['TargetCountries'], function (c_v, c_v){
+															countries.push({
+																'id'   : c_v['CountryId'],
+																'name' : f.empty(c_v['Name'])
+															});
+															movie_video_countris.push({
+																"id"                : c_v['Id'],
+																"video_id"          : video['Id'],
+																"target_country_id" : f.empty(c_v['CountryId']),
+																"country_id"        : f.empty(c_v['CountryId'])
+															});
 														});
-													});
-												}
+													}
+												});											
 												break;
 											default:
 												break;
@@ -672,11 +674,12 @@ var commons = {
 									function (cb0) {
 										if(!_.isEmpty(videos)) {
 											var insertData = {
-												which: 'insert',
+												fields: ['id','movie_id','title','type','start_date','expiration_date','duration','language','language_subtitled','company','source_video_width','source_video_height','allow_advertising','encoded','certification','theatrical','home_video','clean','mature'],												
+												columns: ['id','movie_id','title','type','start_date','expiration_date','duration','language','language_subtitled','company','source_video_width','source_video_height','allow_advertising','encoded','certification','theatrical','home_video','clean','mature'],												
 												table: 'movie_videos',
-												values: videos
+												dataset: videos
 											};
-											dbPool.insert(insertData,  function(err, data) {
+											commonModel.storeData(insertData,  function(err, data) {
 												if (err) { cb0(err); }
 												 else { 
 												 	cb0(null); 
@@ -689,11 +692,12 @@ var commons = {
 									function (cb0) {
 										if(!_.isEmpty(movie_video_screen_captures)) {
 											var insertData = {
-												which: 'insert',
+												fields: ['video_id','height','width','aspect','file_path' ],
+												columns: ['video_id','height','width','aspect','file_path' ],
 												table: 'movie_video_screen_captures',
-												values: movie_video_screen_captures
+												dataset: movie_video_screen_captures
 											};
-											dbPool.insert(insertData,  function(err, data) {
+											commonModel.storeData(insertData,  function(err, data) {
 												if (err) { cb0(err); }
 												 else { 
 												 	cb0(null); 
@@ -706,11 +710,12 @@ var commons = {
 									function (cb0) {
 										if(!_.isEmpty(movie_video_encodes)) {
 											var insertData = {
-												which: 'insert',
+												fields: ['video_id','bitrate','encode_type'],
+												columns: ['video_id','bitrate','encode_type'],
 												table: 'movie_video_encodes',
-												values: movie_video_encodes
+												dataset: movie_video_encodes
 											};
-											dbPool.insert(insertData,  function(err, data) {
+											commonModel.storeData(insertData,  function(err, data) {
 												if (err) { cb0(err); }
 												 else { 
 												 	cb0(null); 
@@ -723,11 +728,12 @@ var commons = {
 									function (cb0) {
 										if(!_.isEmpty(movie_video_countris)) {
 											var insertData = {
-												which: 'insert',
+												fields: ['video_id','target_country_id','country_id' ],
+												columns: ['video_id','target_country_id','country_id' ],
 												table: 'movie_video_countries',
-												values: movie_video_countris
+												dataset: movie_video_countris
 											};
-											dbPool.insert(insertData,  function(err, data) {
+											commonModel.storeData(insertData,  function(err, data) {
 												if (err) { cb0(err); }
 												 else { 
 												 	cb0(null); 
@@ -755,6 +761,7 @@ var commons = {
 											// 	 	cb0(null,total_row); 
 											// 	 }
 											// });
+											cb0(null); 
 										} else {
 											cb0(null, total_row);
 										}
