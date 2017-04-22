@@ -1,5 +1,5 @@
 var express          = require('express'), 
-	videoController = require('../controllers/videoController'),
+	videoController = require('../controllers/videosController'),
 	router = express.Router();
 
 // Add headers
@@ -37,5 +37,31 @@ router.get('/', function(req, res) {
         res.send(data);
     });
 });
+
+router.get('/views/:videoId', function(req, res) {
+    videoController.getViews(req, function(data){
+        res.send(data);
+    });
+});
+
+router.post('/views/', function(req, res) {
+    videoController.insertViews(req, function(data){
+        res.send(data);
+    });
+});
+
+router.get('/likes/:videoId', function(req, res) {
+    videoController.getLikes(req, function(data){
+        res.send(data);
+    });
+});
+
+router.post('/likes/', function(req, res) {
+    videoController.insertLikes(req, function(data){
+        res.send(data);
+    });
+
+});
+
 
 module.exports = router;

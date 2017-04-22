@@ -14,6 +14,7 @@ var	index = require('./routes/index'),
 	users = require('./routes/users'),
 	common = require('./routes/common');
 	movies = require('./routes/movies');
+	videos = require('./routes/videos');
 
 var app = express();
 
