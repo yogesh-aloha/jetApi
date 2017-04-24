@@ -46,6 +46,27 @@ var imagesTableMapping = {
 	"Official"  : "official"
 }
 
+var videosTableMapping = {
+	"Id"                : "id",
+	"Title"             : "title",
+	"Type"              : "type_id",
+	"StartDate"         : "start_date",
+	"ExpirationDate"    : "expiration_date",
+	"Mature"            : "mature",
+	"Duration"          : "duration",
+	"Language"          : "language_id",
+	"LanguageSubtitled" : "language_subtitled_id",
+	"Company"           : "company_id",
+	"Certification"     : "certification",
+	"Theatrical"        : "theatrical",
+	"HomeVideo"         : "home_video",
+	"Clean"             : "clean",
+	"SourceVideoWidth"  : "source_video_width",
+	"SourceVideoHeight" : "source_video_height",
+	"AllowAdvertising"  : "allow_advertising",
+	"Encoded"           : "encoded",
+}
+
 var commons = {
 	insertGenres : function(req, cb) {
 		req.param.table   = 'genres';
@@ -158,65 +179,66 @@ var commons = {
 												movie_images = v;
 												break;
 											case 'Videos':
-												videos.push({
-													'id'                  : v['Id'],
-													'movie_id'            : movie_id,
-													'title'               : f.empty(v['Title']),
-													'type'                : f.empty(v['Type']),
-													'start_date'          : f.fullDate(v['StartDate']),
-													'expiration_date'     : f.fullDate(v['ExpirationDate']),
-													'duration'            : f.empty(v['Duration']),
-													'language'            : f.empty(v['Language']),
-													'language_subtitled'  : f.empty(v['LanguageSubtitled']),
-													'company'             : f.empty(v['Company']),
-													'source_video_width'  : f.empty(v['SourceVideoWidth']),
-													'source_video_height' : f.empty(v['SourceVideoHeight']),
-													'allow_advertising'   : f.empty(v['AllowAdvertising']),
-													'encoded'             : f.fullDate(v['Encoded']),
-													'certification'       : f.empty(v['Certification']),
-													'theatrical'          : f.empty(v['Theatrical']),
-													'home_video'          : f.empty(v['HomeVideo']),
-													'clean'               : f.empty(v['Clean']),
-													'mature'              : f.empty(v['Mature']),
-												});
-												if(v['ScreenCaptures'] !== undefined && _.isArray(V['ScreenCaptures']) && V['ScreenCaptures'].length > 0) {
-													_.each(v['ScreenCaptures'], function (sc_v, sc_k){
-														movie_video_screen_captures.push({
-															"id"             : sc_v['Id'],
-															"movie_video_id" : v['Id'],
-															"height"         : f.empty(sc_v['Height']),
-															"width"          : f.empty(sc_v['Width']),
-															"aspect"         : f.empty(sc_v['Aspect']),
-															"file_path"      : f.empty(sc_v['FilePath'])
-														});
-													});
-												}
+												movie_videos = v;
+												// videos.push({
+												// 	'id'                  : v['Id'],
+												// 	'movie_id'            : movie_id,
+												// 	'title'               : f.empty(v['Title']),
+												// 	'type'                : f.empty(v['Type']),
+												// 	'start_date'          : f.fullDate(v['StartDate']),
+												// 	'expiration_date'     : f.fullDate(v['ExpirationDate']),
+												// 	'duration'            : f.empty(v['Duration']),
+												// 	'language'            : f.empty(v['Language']),
+												// 	'language_subtitled'  : f.empty(v['LanguageSubtitled']),
+												// 	'company'             : f.empty(v['Company']),
+												// 	'source_video_width'  : f.empty(v['SourceVideoWidth']),
+												// 	'source_video_height' : f.empty(v['SourceVideoHeight']),
+												// 	'allow_advertising'   : f.empty(v['AllowAdvertising']),
+												// 	'encoded'             : f.fullDate(v['Encoded']),
+												// 	'certification'       : f.empty(v['Certification']),
+												// 	'theatrical'          : f.empty(v['Theatrical']),
+												// 	'home_video'          : f.empty(v['HomeVideo']),
+												// 	'clean'               : f.empty(v['Clean']),
+												// 	'mature'              : f.empty(v['Mature']),
+												// });
+												// if(v['ScreenCaptures'] !== undefined && _.isArray(V['ScreenCaptures']) && V['ScreenCaptures'].length > 0) {
+												// 	_.each(v['ScreenCaptures'], function (sc_v, sc_k){
+												// 		movie_video_screen_captures.push({
+												// 			"id"             : sc_v['Id'],
+												// 			"movie_video_id" : v['Id'],
+												// 			"height"         : f.empty(sc_v['Height']),
+												// 			"width"          : f.empty(sc_v['Width']),
+												// 			"aspect"         : f.empty(sc_v['Aspect']),
+												// 			"file_path"      : f.empty(sc_v['FilePath'])
+												// 		});
+												// 	});
+												// }
 
-												if(v['Encodes'] !== undefined && _.isArray(V['Encodes']) && V['Encodes'].length > 0) {
-													_.each(v['Encodes'], function (en_v, en_k){
-														movie_video_encodes.push({
-															"id"             : en_v['Id'],
-															"movie_video_id" : v['Id'],
-															"bitrate"        : f.empty(en_v['BitRate']),
-															"encode_type"    : f.empty(en_v['EncodeType'])
-														});
-													});
-												}
+												// if(v['Encodes'] !== undefined && _.isArray(V['Encodes']) && V['Encodes'].length > 0) {
+												// 	_.each(v['Encodes'], function (en_v, en_k){
+												// 		movie_video_encodes.push({
+												// 			"id"             : en_v['Id'],
+												// 			"movie_video_id" : v['Id'],
+												// 			"bitrate"        : f.empty(en_v['BitRate']),
+												// 			"encode_type"    : f.empty(en_v['EncodeType'])
+												// 		});
+												// 	});
+												// }
 
-												if(v['TargetCountries'] !== undefined && _.isArray(V['TargetCountries']) && V['TargetCountries'].length > 0) {
-													_.each(v['TargetCountries'], function (c_v, c_v){
-														countries.push({
-															'id'   : c_v['CountryId'],
-															'name' : f.empty(c_v['Name'])
-														});
-														movie_video_countris.push({
-															"id"                : c_v['Id'],
-															"video_id"          : v['Id'],
-															"target_country_id" : f.empty(c_v['CountryId']),
-															"country_id"        : f.empty(c_v['CountryId'])
-														});
-													});
-												}
+												// if(v['TargetCountries'] !== undefined && _.isArray(V['TargetCountries']) && V['TargetCountries'].length > 0) {
+												// 	_.each(v['TargetCountries'], function (c_v, c_v){
+												// 		countries.push({
+												// 			'id'   : c_v['CountryId'],
+												// 			'name' : f.empty(c_v['Name'])
+												// 		});
+												// 		movie_video_countris.push({
+												// 			"id"                : c_v['Id'],
+												// 			"video_id"          : v['Id'],
+												// 			"target_country_id" : f.empty(c_v['CountryId']),
+												// 			"country_id"        : f.empty(c_v['CountryId'])
+												// 		});
+												// 	});
+												// }
 												break;
 											default:
 												break;
@@ -670,73 +692,151 @@ var commons = {
 										}
 									},
 									function (cb0) {
-										if(!_.isEmpty(videos)) {
+										/*if(!_.isEmpty(movie_videos)) {
+											async.eachSeries(movie_videos, function(videos, eachVideoCB) {
+												var video_type          = []
+												var languages           = [];
+												var subtitled_languages = [];
+												var video_companies     = [];
+												if(f.empty(images['ImageType']) !== null) {
+													image_type.push(images['ImageType']);
+												}
+												if(f.empty(images['Language']) !== null) {
+													languages.push(images['Language']);
+												}
+
+												console.log(image_type,languages);
+												async.waterfall([ // Inserting generes for movies in series
+													function(ImageCB) {
+														async.parallel({
+															image_type_ids : function(cbLang) {
+																if(image_type.length > 0){
+																	commonModel.getStoreImageType(image_type, function(err, data){
+												if (err) { cb0(err); }
+												 else { 
+																			cbLang(null, data);
+												 }
+											});
+										} else {
+																	cbLang(null, []);
+										}
+									},
+															language_ids : function(cbLang) {
+																if(languages.length > 0){
+																	commonModel.getStoreLanguages(languages, function(err, data){
+												if (err) { cb0(err); }
+												 else { 
+																			cbLang(null, data);
+												 }
+											});
+										} else {
+																	cbLang(null, []);
+										}
+									},
+														},function(err, data){
+															if(err) {return cb0(err);}
+															else {ImageCB(null,data)}
+														});
+													},
+													function(data,ImageCB) {
+														var image_type_ids = data.image_type_ids;
+														var language_ids   = data.language_ids;
+														var imageVals      = [];
+														// async.eachof(images, function(img, eachCB) {
+														async.forEachOf(images, function (img, key, eachCB){
+															if(key === 'Language') {
+																lang_id       = _.find(_.map(language_ids, function(lang){ if(lang.name == img) {return lang.id}}), function(num){ return num !==undefined; });
+																imageVals['language_id'] = lang_id;
+															} else if(key === 'ImageType') {
+																image_type_id = _.find(_.map(image_type_ids, function(type){ if(type.type === img) {return type.id} }), function(num){ return num !==undefined; });
+																imageVals['image_type_id'] = image_type_id;
+															} else if(key === 'Tags') {
+																console.log()
+																image_tags = img;
+															} 
+															else {
+																imageVals[imagesTableMapping[key]] = img;
+															} 
+															eachCB(null);
+														}, function(err){
+															imageVals['movie_id'] = movie_id;
 											var insertData = {
 												which: 'insert',
-												table: 'movie_videos',
-												values: videos
+																table: 'movie_images',
+																values: imageVals
 											};
 											dbPool.insert(insertData,  function(err, data) {
 												if (err) { cb0(err); }
 												 else { 
-												 	cb0(null); 
+																 	ImageCB(null,data['insertId'])
+																 }
+															});
+														});
+													}, 
+													function(image_id,ImageCB) {
+														if(!_.isEmpty(image_tags)) {
+															var tagVals    = [];
+															var imgTagVals = [];
+															console.log(image_id);
+															async.each(image_tags, function(tag, eachCB) {
+																tagVals.push("("+tag['TagId']+",'"+ f.empty(tag['Name']) +"')");
+																imgTagVals.push("("+image_id+","+ tag['TagId'] +")");
+																eachCB(null);
+															}, function(err){
+																async.parallel([
+																	function(tagCb) {
+																		if(tagVals.length > 0) {
+																			var qry = "INSERT IGNORE INTO tags (id,name) VALUES "+tagVals.join(',');
+																			dbPool.query(qry,function(err, data){
+																				if(err) {return cb0('error in insert tags '+err)}
+																				else {
+																					tagCb(null);
 												 }
 											});
 										} else {
-											cb0(null);
+																			tagCb(null);
 										}
 									},
-									function (cb0) {
-										if(!_.isEmpty(movie_video_screen_captures)) {
-											var insertData = {
-												which: 'insert',
-												table: 'movie_video_screen_captures',
-												values: movie_video_screen_captures
-											};
-											dbPool.insert(insertData,  function(err, data) {
-												if (err) { cb0(err); }
+																	function(tagCb) {
+																		if(imgTagVals.length > 0) {
+																			var qry = "INSERT IGNORE INTO movie_image_tags (image_id,tag_id) VALUES "+imgTagVals.join(',');
+																			dbPool.query(qry,function(err, data){
+																				if(err) {return cb0('error in insert movie movie tags '+err)}
 												 else { 
-												 	cb0(null); 
+																					tagCb(null);
 												 }
 											});
 										} else {
-											cb0(null);
+																			tagCb(null);
 										}
 									},
-									function (cb0) {
-										if(!_.isEmpty(movie_video_encodes)) {
-											var insertData = {
-												which: 'insert',
-												table: 'movie_video_encodes',
-												values: movie_video_encodes
-											};
-											dbPool.insert(insertData,  function(err, data) {
-												if (err) { cb0(err); }
-												 else { 
-												 	cb0(null); 
-												 }
+																],function(err, data){
+																	if(err) {return cb0(err);}
+																	else {ImageCB(null)}
+																});
+															});
+														} else {
+															ImageCB(null);
+														}
+													}
+												],
+												function(err){
+													if (err) {
+														console.log('ERROR in insert genres on async series '+err);
+														eachImageCB(err);
+													} else {
+														nxt = false;
+														eachImageCB(null);
+													}
+												});
+											}, function(err){
+												if(err) {return cb0(err); } 
+												else {cb0(null); }
 											});
 										} else {
 											cb0(null);
-										}
-									},
-									function (cb0) {
-										if(!_.isEmpty(movie_video_countris)) {
-											var insertData = {
-												which: 'insert',
-												table: 'movie_video_countries',
-												values: movie_video_countris
-											};
-											dbPool.insert(insertData,  function(err, data) {
-												if (err) { cb0(err); }
-												 else { 
-												 	cb0(null); 
-												 }
-											});
-										} else {
-											cb0(null);
-										}
-									},
+										}*/
+									}
 									function (cb0) {
 										console.log('In TheatricalMovies');
 										nxt = false;

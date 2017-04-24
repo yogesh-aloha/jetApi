@@ -15,6 +15,7 @@ var	index = require('./routes/index'),
 	common = require('./routes/common');
 	movies = require('./routes/movies');
 	videos = require('./routes/videos');
+	doc = require('./routes/doc');
 
 var app = express();
 
@@ -47,6 +48,7 @@ app.use('/users', users);
 app.use('/common', common);
 app.use('/movies', movies);
 app.use('/videos', videos);
+app.use('/doc', doc);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
