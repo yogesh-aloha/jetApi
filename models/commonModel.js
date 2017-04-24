@@ -115,6 +115,40 @@ var commons = {
 			cb(null, []);
 		}
 	},
+
+	getStoreVideoType : function(videoTypes, cb) {
+		if(videoTypes.length > 0) {
+			var video_type_ids = [];
+			async.each(videoTypes, function(type, eachCB) {
+				var getType = "SELECT id,name FROM video_types WHERE name = '" + type + "'";
+				dbPool.query(getType,function(err, data){
+					if(err) {return cb1('error in insert video types '+err)}
+					else {
+						if(data.length > 0) {
+							video_type_ids.push({"id":data[0].id, "type":type});
+							eachCB(null, data[0].id);
+						} else {
+							var storeVideoType = "INSERT IGNORE INTO video_types (name) VALUES ('"+type+"')";
+							dbPool.query(storeVideoType,function(err, data){
+								if(err) {return cb1('error in insert video types '+err)}
+								else {
+									video_type_ids.push({"id":data['insertId'], "type":type});
+									eachCB(null);
+								}
+							});
+						}
+					}
+				});
+			}, function(err){
+				if(err) {cb(err);}
+				else { 
+					cb(null, video_type_ids);
+				}
+			});
+		} else {
+			cb(null, []);
+		}
+	},
 	getStoreReleaseTypes : function(releaseTypes, cb) {
 		if(releaseTypes.length > 0) {
 			var release_type_ids = [];
