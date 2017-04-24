@@ -38,4 +38,20 @@ router.get('/', function(req, res) {
     });
 });
 
+router.get('/details', function(req, res) {
+    /**
+    * @api {get} /videos/details Request to store theterical data
+    * @apiName /videos/details
+    * @apiGroup videos
+    *
+    * @apiParam {id} -
+    *
+    * @apiSuccess {String} Error Error if any
+    * @apiSuccess {String} Success  Success message
+    */
+    videoController.getVideoByID(req, function(data){
+        res.send(data);
+    });
+});
+
 module.exports = router;
