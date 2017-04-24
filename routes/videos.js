@@ -38,6 +38,23 @@ router.get('/', function(req, res) {
     });
 });
 
+
+router.get('/getSortedVideos', function(req, res) {
+    /**
+    * @api {get} /movies/theterical Request to store theterical data
+    * @apiName /movies/theterical
+    * @apiGroup movies
+    *
+    * @apiParam {null} -
+    *
+    * @apiSuccess {String} Error Error if any
+    * @apiSuccess {String} Success  Success message
+    */
+    videoController.getSortedVideos(req, function(data){
+        res.send(data);
+    });
+});
+
 router.get('/details', function(req, res) {
     /**
     * @api {get} /videos/details Request to store theterical data
@@ -53,5 +70,40 @@ router.get('/details', function(req, res) {
         res.send(data);
     });
 });
+
+
+router.get('/getSearchVideos', function(req, res) {
+    /**
+    * @api {get} /movies/theterical Request to store theterical data
+    * @apiName /movies/theterical
+    * @apiGroup movies
+    *
+    * @apiParam {null} -
+    *
+    * @apiSuccess {String} Error Error if any
+    * @apiSuccess {String} Success  Success message
+    */
+    videoController.getSearchVideos(req, function(data){
+        res.send(data);
+    });
+});
+
+router.get('/getYMAL', function(req, res) {
+    /**
+    * @api {get} /movies/theterical Request to store theterical data
+    * @apiName /movies/theterical
+    * @apiGroup movies
+    *
+    * @apiParam {null} -
+    *
+    * @apiSuccess {String} Error Error if any
+    * @apiSuccess {String} Success  Success message
+    */
+    videoController.getYMAL(req, function(data){
+        res.send(data);
+    });
+});
+
+    
 
 module.exports = router;
