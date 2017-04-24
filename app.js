@@ -8,14 +8,13 @@ var express      = require('express'),
 	yaml         = require("js-yaml"),
 	envVar       = process.env.NODE_ENV,
 	fs           = require("fs");
-	
+
 // Routing
 var	index = require('./routes/index'),
 	users = require('./routes/users'),
-	common = require('./routes/common');
-	movies = require('./routes/movies');
+	common = require('./routes/common'),
+	movies = require('./routes/movies'),
 	videos = require('./routes/videos');
-	doc = require('./routes/doc');
 
 var app = express();
 
@@ -31,6 +30,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use('/apidoc', express.static('apidoc'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
@@ -48,7 +48,6 @@ app.use('/users', users);
 app.use('/common', common);
 app.use('/movies', movies);
 app.use('/videos', videos);
-app.use('/doc', doc);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

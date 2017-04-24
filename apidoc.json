@@ -1,0 +1,7 @@
+{
+  "name": "test",
+  "version": "0.13.0",
+  "description": "RESTful web API Documentation Generator",
+  "url" : "http://localhost:3000",
+  "sampleUrl": "http://localhost:3000"
+}

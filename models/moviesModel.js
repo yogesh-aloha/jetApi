@@ -105,15 +105,15 @@ var commons = {
 							} else {
 								cb1(null,total_row);
 							}
-						}, 
+						},
 						function(total_row,cb1) {
 							var options        = {};
 							options.theterical = true;
 							options.path       = '/TheatricalMovies/?Skip=1&Take=1&Includes=Images';
 							request.sendReq(options, function(err, result) {
-								console.log(result);        
+								console.log(result);
 								if(err) { return cb('error while getting data for Companies '+err)}
-								
+
 								if(result.length <= 0) {
 									nxt = false;
 									cb1(null, total_row);
@@ -242,7 +242,7 @@ var commons = {
 												break;
 											default:
 												break;
-										}												
+										}
 									} else {
 										theterical_data[moviesTableMapping[k]] = v;
 									}
@@ -261,7 +261,7 @@ var commons = {
 														if(err) {return cb0(err);}
 														else { cbSeries(null);}
 													});
-												}, 
+												},
 												function(cbSeries){
 													var mov_gen_vals = _.map(_.pluck(genres, 'Id'), function(num){ return "("+num +","+ movie_id +")"});
 													var qry = "INSERT IGNORE INTO movie_genres (genre_id, movie_id) VALUES "+mov_gen_vals.join(',');
@@ -296,7 +296,7 @@ var commons = {
 														country_ids : function(cbContries) {
 															commonModel.getStoreCountries(countries, function(err, data){
 																if(err) {cb0(err);}
-																else { 
+																else {
 																	cbContries(null, data);
 																}
 															});
@@ -304,7 +304,7 @@ var commons = {
 														release_type_ids : function(cbContries) {
 															commonModel.getStoreReleaseTypes(release_types, function(err, data){
 																if(err) {cb0(err);}
-																else { 
+																else {
 																	cbContries(null, data);
 																}
 															});
@@ -374,7 +374,7 @@ var commons = {
 												function(titleCB) {
 													commonModel.getStoreCountries(countries, function(err, data){
 														if(err) {cb0(err);}
-														else { 
+														else {
 															titleCB(null, data);
 														}
 													});
@@ -419,7 +419,7 @@ var commons = {
 												function(descCB) {
 													commonModel.getStoreLanguages(languages, function(err, data){
 														if(err) {cb0(err);}
-														else { 
+														else {
 															descCB(null, data);
 														}
 													});
@@ -558,7 +558,7 @@ var commons = {
 												if(f.empty(images['Language']) !== null) {
 													languages.push(images['Language']);
 												}
-											
+
 												console.log(image_type,languages);
 												async.waterfall([ // Inserting generes for movies in series
 													function(ImageCB) {
@@ -567,7 +567,7 @@ var commons = {
 																if(image_type.length > 0){
 																	commonModel.getStoreImageType(image_type, function(err, data){
 																		if(err) {cb0(err);}
-																		else { 
+																		else {
 																			cbLang(null, data);
 																		}
 																	});
@@ -579,7 +579,7 @@ var commons = {
 																if(languages.length > 0){
 																	commonModel.getStoreLanguages(languages, function(err, data){
 																		if(err) {cb0(err);}
-																		else { 
+																		else {
 																			cbLang(null, data);
 																		}
 																	});
@@ -607,10 +607,10 @@ var commons = {
 															} else if(key === 'Tags') {
 																console.log()
 																image_tags = img;
-															} 
+															}
 															else {
 																imageVals[imagesTableMapping[key]] = img;
-															} 
+															}
 															eachCB(null);
 														}, function(err){
 															imageVals['movie_id'] = movie_id;
@@ -626,7 +626,7 @@ var commons = {
 																 }
 															});
 														});
-													}, 
+													},
 													function(image_id,ImageCB) {
 														if(!_.isEmpty(image_tags)) {
 															var tagVals    = [];
@@ -684,7 +684,7 @@ var commons = {
 													}
 												});
 											}, function(err){
-												if(err) {return cb0(err); } 
+												if(err) {return cb0(err); }
 												else {cb0(null); }
 											});
 										} else {
@@ -713,7 +713,7 @@ var commons = {
 																if(image_type.length > 0){
 																	commonModel.getStoreImageType(image_type, function(err, data){
 												if (err) { cb0(err); }
-												 else { 
+												 else {
 																			cbLang(null, data);
 												 }
 											});
@@ -725,7 +725,7 @@ var commons = {
 																if(languages.length > 0){
 																	commonModel.getStoreLanguages(languages, function(err, data){
 												if (err) { cb0(err); }
-												 else { 
+												 else {
 																			cbLang(null, data);
 												 }
 											});
@@ -753,10 +753,10 @@ var commons = {
 															} else if(key === 'Tags') {
 																console.log()
 																image_tags = img;
-															} 
+															}
 															else {
 																imageVals[imagesTableMapping[key]] = img;
-															} 
+															}
 															eachCB(null);
 														}, function(err){
 															imageVals['movie_id'] = movie_id;
@@ -767,12 +767,12 @@ var commons = {
 											};
 											dbPool.insert(insertData,  function(err, data) {
 												if (err) { cb0(err); }
-												 else { 
+												 else {
 																 	ImageCB(null,data['insertId'])
 																 }
 															});
 														});
-													}, 
+													},
 													function(image_id,ImageCB) {
 														if(!_.isEmpty(image_tags)) {
 															var tagVals    = [];
@@ -802,7 +802,7 @@ var commons = {
 																			var qry = "INSERT IGNORE INTO movie_image_tags (image_id,tag_id) VALUES "+imgTagVals.join(',');
 																			dbPool.query(qry,function(err, data){
 																				if(err) {return cb0('error in insert movie movie tags '+err)}
-												 else { 
+												 else {
 																					tagCb(null);
 												 }
 											});
@@ -830,13 +830,13 @@ var commons = {
 													}
 												});
 											}, function(err){
-												if(err) {return cb0(err); } 
+												if(err) {return cb0(err); }
 												else {cb0(null); }
 											});
 										} else {
 											cb0(null);
 										}*/
-									}
+									},
 									function (cb0) {
 										console.log('In TheatricalMovies');
 										nxt = false;
@@ -850,9 +850,9 @@ var commons = {
 											// dbPool.insert(insertData,  function(err, data) {
 											// 	if (err) { console.log(err); cb0(err); }
 											// 	 else {
-											// 	 	total_row++; 
+											// 	 	total_row++;
 											// 	 	console.log('total_row',total_row)
-											// 	 	cb0(null,total_row); 
+											// 	 	cb0(null,total_row);
 											// 	 }
 											// });
 										} else {
@@ -860,12 +860,12 @@ var commons = {
 										}
 									},
 								],function (err, data) {
-									cb2(null, data[18]); 
+									cb2(null, data[18]);
 								});
 							},
 							function(err, data){
 								cb1(err, data);
-							}); 
+							});
 						}
 					], function (err, rows) {
 						if(err) {

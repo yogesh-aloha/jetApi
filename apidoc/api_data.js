@@ -1,6 +1,50 @@
 define({ "api": [
   {
     "type": "get",
+    "url": "/index",
+    "title": "Get Index Page",
+    "group": "Index",
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "Index",
+            "description": "<p>Page title</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success",
+          "content": "HTTP/1.1 200 OK\n[\n       Title : Express\n   ]",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "List error",
+          "content": "HTTP/1.1 500 Internal Server Error",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./routes/index.js",
+    "groupTitle": "Index",
+    "name": "GetIndex",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/index"
+      }
+    ]
+  },
+  {
+    "type": "get",
     "url": "/movies/theterical",
     "title": "",
     "name": "_movies_theterical",
@@ -39,8 +83,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/movies.js",
-    "groupTitle": "movies"
+    "filename": "./routes/movies.js",
+    "groupTitle": "movies",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/movies/theterical"
+      }
+    ]
   },
   {
     "type": "post",
@@ -89,8 +138,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos/views"
+      }
+    ]
   },
   {
     "type": "get",
@@ -132,8 +186,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos/details"
+      }
+    ]
   },
   {
     "type": "get",
@@ -175,8 +234,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos/likes/id"
+      }
+    ]
   },
   {
     "type": "get",
@@ -218,8 +282,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos"
+      }
+    ]
   },
   {
     "type": "get",
@@ -261,8 +330,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos/search"
+      }
+    ]
   },
   {
     "type": "get",
@@ -311,8 +385,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos/sort"
+      }
+    ]
   },
   {
     "type": "get",
@@ -354,8 +433,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos/views/id"
+      }
+    ]
   },
   {
     "type": "get",
@@ -397,8 +481,13 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos/ymal"
+      }
+    ]
   },
   {
     "type": "post",
@@ -454,7 +543,12 @@ define({ "api": [
       }
     },
     "version": "0.0.0",
-    "filename": "routes/videos.js",
-    "groupTitle": "videos"
+    "filename": "./routes/videos.js",
+    "groupTitle": "videos",
+    "sampleRequest": [
+      {
+        "url": "http://localhost:3000/videos/likes"
+      }
+    ]
   }
 ] });
